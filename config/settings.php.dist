@@ -1,0 +1,27 @@
+<?php
+declare(strict_types=1);
+
+return [
+    'settings' => [
+        'displayErrorDetails' => true, // set to false in production
+        'addContentLengthHeader' => false, // Allow the web server to send the content-length header
+        'db' => [
+            'database_type' => 'mysql',
+            'database_name' => 'db',
+            'server' => '127.0.0.1',
+            'username' => 'user',
+            'password' => 'pass',
+            'charset' => 'utf-8',
+            'port' => '3306',
+        ],
+        'session' => [
+            'name' => 'session',
+            'autorefresh' => true,
+            'lifetime' => '5 hours',
+            'httponly'     => true,
+            'path'         => '/',
+            //    'domain'       => 'domain',
+            //    'secure'       => false,
+        ],
+    ],
+];

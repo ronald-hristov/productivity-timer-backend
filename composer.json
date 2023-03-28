@@ -1,0 +1,20 @@
+{
+    "require": {
+        "php": ">=7.2.0",
+        "slim/slim": "4.*",
+        "php-di/php-di": "^6.1",
+        "slim/psr7": "^1.1",
+        "catfan/medoo": "^1.6",
+        "slim/php-view": "2.*",
+        "ext-json": "*",
+        "ext-pdo":"*",
+        "monolog/monolog": "^1.24",
+        "bryanjhv/slim-session": "4.*",
+        "php-curl-class/php-curl-class": "^8.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}
