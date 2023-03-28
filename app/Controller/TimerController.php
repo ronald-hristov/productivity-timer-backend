@@ -5,7 +5,7 @@ namespace App\Controller;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
-class IndexController extends AbstractController
+class TimerController extends AbstractController
 {
     /**
      * Home page
@@ -18,6 +18,26 @@ class IndexController extends AbstractController
     {
         $response = $this->view->render($response, 'index/index.phtml');
         return $response;
+    }
+
+    public function fetchAction(Request $request, Response $response)
+    {
+
+    }
+
+    public function updateAction(Request $request, Response $response)
+    {
+
+    }
+
+    public function createAction(Request $request, Response $response)
+    {
+
+    }
+
+    public function deleteAction(Request $request, Response $response)
+    {
+
     }
 
 }
