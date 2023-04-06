@@ -17,5 +17,6 @@ return function (App $app) {
             $group->get('/timers', \App\Controller\TimerController::class . ':indexAction');
             $group->post('/timers', \App\Controller\TimerController::class . ':createAction');
             $group->put('/timers/{id}', \App\Controller\TimerController::class . ':updateAction');
+            $group->delete('/timers/{id}', \App\Controller\TimerController::class . ':deleteAction');
         });
 };

@@ -106,9 +106,13 @@ class TimerController extends AbstractController
         return $response->withStatus(201);
     }
 
-    public function deleteAction(Request $request, Response $response)
+    public function deleteAction(Request $request, Response $response, $args)
     {
+        $db = Db::getDb();
+        $id = $args['id'];
+        $db->delete('timers', ['id' => $id]);
 
+        return $response;
     }
 
 }
