@@ -17,7 +17,8 @@ class TimerController extends AbstractController
      */
     public function indexAction(Request $request, Response $response)
     {
-        $userId = 1;
+        $user = $request->getAttribute('user');
+        $userId = $user['id'];
         $db = Db::getDb();
         $date = date('Y-m-d');
 //        $db->beginDebug();
@@ -33,7 +34,7 @@ class TimerController extends AbstractController
                 'timers.length[Int]',
                 'timer_entries.elapsed[Int]',
             ],
-            ['user_id' => 1]
+            ['user_id' => $userId]
         );
         foreach ($timers as $key => $timer) {
             if (is_null($timer['elapsed'])) {
@@ -62,8 +63,14 @@ class TimerController extends AbstractController
     {
         $db = Db::getDb();
         $id = $args['id'];
-        $post = $request->getParsedBody();
+        $user = $request->getAttribute('user');
+        $userId = $user['id'];
+        $timer =  $db->get('timers', '*', ['id' => $id, 'user_id' => $userId]);
+        if (!$timer) {
+            return $response->withStatus(400);
+        }
 
+        $post = $request->getParsedBody();
         $date = date('Y-m-d');
         $timerEntry = $db->get('timer_entries', '*',
             [
@@ -92,7 +99,8 @@ class TimerController extends AbstractController
      */
     public function createAction(Request $request, Response $response)
     {
-        $userId = 1;
+        $user = $request->getAttribute('user');
+        $userId = $user['id'];
         $post = $request->getParsedBody();
         $db = Db::getDb();
         $db->insert('timers', [
@@ -108,9 +116,11 @@ class TimerController extends AbstractController
 
     public function deleteAction(Request $request, Response $response, $args)
     {
-        $db = Db::getDb();
         $id = $args['id'];
-        $db->delete('timers', ['id' => $id]);
+        $user = $request->getAttribute('user');
+        $userId = $user['id'];
+        $db = Db::getDb();
+        $db->delete('timers', ['id' => $id, 'user_id' => $userId]);
 
         return $response;
     }

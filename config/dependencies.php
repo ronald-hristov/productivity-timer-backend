@@ -5,7 +5,6 @@ use DI\ContainerBuilder;
 
 return function (ContainerBuilder $containerBuilder) {
     $containerBuilder->addDefinitions([
-
         'db' => function ($c) {
             /** @var \Psr\Container\ContainerInterface $c */
             $settings = $c->get('settings')['db'];
@@ -23,6 +22,15 @@ return function (ContainerBuilder $containerBuilder) {
 
             return $phpView;
         },
+        'session' => function ($c) {return new \SlimSession\Helper;},
+        \App\Middleware\UserAwareRequestMiddleware::class => function ($c) {return \App\Factory\UserAwareRequestMiddlewareFactory::create($c);},
+        \App\Middleware\PermissionsMiddleware::class => function ($c) {return \App\Factory\PermissionsMiddlewareFactory::create($c);},
+        \Slim\Middleware\Session::class => function ($c) {return \App\Factory\SessionMiddlewareFactory::create($c);},
+        \App\Service\Auth::class => function ($c) {
+            $user = $c->get('session')->get('user');
+            return new \App\Service\Auth($user);
+        },
+
 
     ]);
 };

@@ -6,7 +6,7 @@ use Slim\App;
 
 return function (App $app) {
     $app->add(\App\Middleware\JsonBodyParserMiddleware::class);
-    $sessionSettings = $app->getContainer()->get('settings')['session'];
-    $app->add(new \Slim\Middleware\Session($sessionSettings));
+    $app->add(\App\Middleware\UserAwareRequestMiddleware::class);
+    $app->add($app->getContainer()->get(\Slim\Middleware\Session::class));
     \App\Util\Db::setDb($app->getContainer()->get('db'));
 };
