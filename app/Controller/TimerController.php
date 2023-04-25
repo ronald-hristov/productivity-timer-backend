@@ -53,13 +53,34 @@ class TimerController extends AbstractController
 
     }
 
+    public function updateAction(Request $request, Response $response, $args)
+    {
+        $id = $args['id'];
+        $user = $request->getAttribute('user');
+        $userId = $user['id'];
+        $post = $request->getParsedBody();
+        $db = Db::getDb();
+        $db->update('timers',
+            [
+                'title' => $post['title'],
+                'length' => $this->timeToSeconds($post['length']),
+            ],
+            [
+                'id' => $id, 'user_id' => $userId,
+            ]
+        );
+
+        $response->getBody()->write(json_encode(['id' => $id]));
+        return $response;
+    }
+
     /**
      * @param Request $request
      * @param Response $response
      * @param array $args
      * @return Response
      */
-    public function updateAction(Request $request, Response $response, array $args)
+    public function addTimeElapsedAction(Request $request, Response $response, array $args)
     {
         $db = Db::getDb();
         $id = $args['id'];
@@ -71,23 +92,7 @@ class TimerController extends AbstractController
         }
 
         $post = $request->getParsedBody();
-        $date = date('Y-m-d');
-        $timerEntry = $db->get('timer_entries', '*',
-            [
-                'timer_id' => $id,
-                'date' => $date
-            ]
-        );
-
-        if ($timerEntry) {
-            $db->update('timer_entries', ['elapsed' => $post['elapsed']], ['id' => $timerEntry['id']]);
-        } else {
-            $db->insert('timer_entries', [
-                'elapsed' => $post['elapsed'],
-                'timer_id' => $id,
-                'date' => $date
-            ]);
-        }
+        $this->addTimeElapsedToTimer($id, $post['elapsed']);
 
         return $response;
     }
@@ -106,7 +111,7 @@ class TimerController extends AbstractController
         $db->insert('timers', [
             'user_id' => $userId,
             'title' => $post['title'],
-            'length' => $post['length'],
+            'length' => $this->timeToSeconds($post['length']),
             'date_created' => date('Y-m-d H:i:s'),
         ]);
 
@@ -124,5 +129,62 @@ class TimerController extends AbstractController
 
         return $response;
     }
+
+    public function completeAction(Request $request, Response $response, $args)
+    {
+        $id = $args['id'];
+        $user = $request->getAttribute('user');
+        $userId = $user['id'];
+        $db = Db::getDb();
+        $timer =  $db->get('timers', '*', ['id' => $id, 'user_id' => $userId]);
+        if (!$timer) {
+            return $response->withStatus(400);
+        }
+        $this->addTimeElapsedToTimer($id, $timer['length']);
+
+        return $response;
+    }
+
+    /**
+     * @param $timerId
+     * @param $time
+     * @return bool
+     */
+    protected function addTimeElapsedToTimer($timerId, $time): bool
+    {
+        $db = Db::getDb();
+        $date = date('Y-m-d');
+        $timerEntry = $db->get('timer_entries', '*',
+            [
+                'timer_id' => $timerId,
+                'date' => $date
+            ]
+        );
+
+        if ($timerEntry) {
+            $db->update('timer_entries', ['elapsed' => $time], ['id' => $timerEntry['id']]);
+        } else {
+            $db->insert('timer_entries', [
+                'elapsed' => $time,
+                'timer_id' => $timerId,
+                'date' => $date
+            ]);
+        }
+
+        return true;
+    }
+
+    protected function timeToSeconds($time)
+    {
+        if (strpos($time, ':') === false && is_numeric($time)) {
+            return $time;
+        }
+
+        $matches = [];
+        preg_match('/(?<hours>\d+):(?<mins>\d+):(?<seconds>\d+)/', $time, $matches);
+        $seconds = (int) $matches['hours'] * 3600 + $matches['mins'] * 60 + $matches['seconds'];
+        return $seconds;
+    }
+
 
 }
